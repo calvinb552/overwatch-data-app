@@ -13,24 +13,6 @@ int selectedIndex = 0;
 
   @override
   Widget build(BuildContext context) {
-    Widget page;
-    switch (selectedIndex) {
-      case 0:
-      page = Placeholder();
-      break;
-    case 1:
-      page = Placeholder();
-      break;
-    case 2:
-      page = Placeholder();
-      break;
-    case 3:
-      page = Placeholder();
-      break;
-    default:
-      throw UnimplementedError('no widget for $selectedIndex')
-    }
-
     return Scaffold(
       appBar: AppBar(title: const Text('overwatch stats'),),
       body: Center(
@@ -38,7 +20,9 @@ int selectedIndex = 0;
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             ElevatedButton(onPressed: () {
-
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => heros_page()));
             },
              
             child: const Text('Heros')),
@@ -64,3 +48,16 @@ int selectedIndex = 0;
       );
   }
 }
+
+class heros_page extends StatelessWidget {
+  @override
+  Widget build(BuildContext context){
+    return Scaffold(
+      appBar: AppBar(title: Text('Hero stats')),
+      body: Center(child: Text('get hero stats here!'),)
+    );
+  }
+}
+
+
+
