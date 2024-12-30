@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-
+import 'package:overwatch_stats/pages/heros_page.dart';
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
@@ -49,15 +49,6 @@ int selectedIndex = 0;
   }
 }
 
-class heros_page extends StatelessWidget {
-  @override
-  Widget build(BuildContext context){
-    return Scaffold(
-      appBar: AppBar(title: Text('Hero stats')),
-      body: Center(child: Text('get hero stats here!'),)
-    );
-  }
-}
 
 
 
