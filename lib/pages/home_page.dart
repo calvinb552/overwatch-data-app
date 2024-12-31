@@ -22,7 +22,7 @@ int selectedIndex = 0;
             ElevatedButton(onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => heros_page()));
+                MaterialPageRoute(builder: (context) => Heroes_Page()));
             },
              
             child: const Text('Heros')),

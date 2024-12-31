@@ -11,12 +11,37 @@ Future<http.Response> hero_data(hero) {
 Future<http.Response> roles_info() {
   return http.get(Uri.parse('https://overfast-api.tekrop.fr/roles'));
 }
-class heros_page extends StatelessWidget {
+
+class Heroes_Page extends StatefulWidget{
+  const Heroes_Page({Key? key}) : super(key:key);
   @override
-  Widget build(BuildContext context){
+  State<Heroes_Page> createState() => _Heroes_PageState();
+}
+class _Heroes_PageState extends State<Heroes_Page> {
+  bool _customIcon = false;
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Hero stats')),
-      body: Center(child: Text('get hero stats here!'),)
+      appBar: AppBar(title: const Text('Heroes Page')),
+      body: Column(
+        children: <Widget>[
+          ExpansionTile(
+            title: const Text('test'),
+            trailing: Icon(
+              _customIcon ? Icons.arrow_drop_down_circle : Icons.arrow_drop_down,
+            ),
+            children: const <Widget>[
+              ListTile(
+                title: Text('test number 2'),
+              ),
+            ],
+            onExpansionChanged: (bool expanded) {
+              setState(() => _customIcon = expanded);
+            },
+          ),
+        ],
+      ),
     );
   }
 }
