@@ -2,9 +2,6 @@ import 'package:flutter/material.dart';
 import 'dart:convert'; // For JSON decoding
 import 'package:http/http.dart' as http;
 
-Future<http.Response> hero_list() {
-  return http.get(Uri.parse('https://overfast-api.tekrop.fr/heroes'));
-}
 Future<http.Response> hero_data(hero) {
   return http.get(Uri.parse('https://overfast-api.tekrop.fr/heroes/'+hero));
 }
@@ -19,6 +16,18 @@ class Heroes_Page extends StatefulWidget{
 }
 class _Heroes_PageState extends State<Heroes_Page> {
   bool _customIcon = false;
+  Future<Map<String,dynamic>> fetchHeroes() async{
+    final response = await http.get(Uri.parse('https://overfast-api.tekrop.fr/heroes'));
+
+    if(response.statusCode == 200){
+      final data = json.decode(response.body);
+      return data;
+    }else{
+      throw Exception("failed to fetch a random joke");
+    }
+
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -28,6 +37,7 @@ class _Heroes_PageState extends State<Heroes_Page> {
         children: <Widget>[
           ExpansionTile(
             title: const Text('test'),
+            minTileHeight: 100,
             trailing: Icon(
               _customIcon ? Icons.arrow_drop_down_circle : Icons.arrow_drop_down,
             ),
