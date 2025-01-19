@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:convert'; // For JSON decoding
 import 'package:http/http.dart' as http;
 
+
 //create api function
 Future<List<Hero>> fetchHeroes() async{
   final response = await http.get(Uri.parse('https://overfast-api.tekrop.fr/heroes'));
@@ -34,6 +35,7 @@ class _Heroes_PageState extends State<Heroes_Page> {
   late Future<List<Hero>> _heroesFuture;
   Map<String, Future<HeroDetails>> _detailsCache = {}; //cache to avoid duplicate API calls
 
+  
 
   @override
   void initState() {
@@ -59,7 +61,26 @@ class _Heroes_PageState extends State<Heroes_Page> {
               itemBuilder: (context, index) {
                 final hero = heroes[index];
                 return ExpansionTile(
-                  title: Text(hero.name),
+                  title: Row(
+                    children: [
+                      Image.network(
+                        hero.portrait,
+                        width: 40,
+                        height: 40,
+                        fit: BoxFit.cover,
+                        loadingBuilder: (context, child, loadingProgress) {
+                          if (loadingProgress == null) return child; //image loaded
+                          return const CircularProgressIndicator(); //loading icon
+                        },
+                        errorBuilder: (context, error, StackTrace) {
+                          print("Failed to load image $error");
+                          return const Icon(Icons.error); //fallback icon
+                        },
+                      ),
+                      const SizedBox(width: 10),
+                      Text(hero.name), //hero name
+                    ],
+                    ),
                   onExpansionChanged: (isExpanded) {
                     if (isExpanded && !_detailsCache.containsKey(hero.name)) {
                       //fetch details only if not cached
@@ -84,7 +105,7 @@ class _Heroes_PageState extends State<Heroes_Page> {
                         }else if (snapshot.hasData){
                           final details = snapshot.data!;
                           return Padding(padding: const EdgeInsets.all(8.0),
-                          child: Text(details.description),
+                          child: Text("Details: ${details.description}\nage: ${details.age}\nbirthday: ${details.birthday}\nlocation: ${details.location}\nrole: ${details.role}"),
                           );
                         } else {
                           return const Padding(padding: EdgeInsets.all(8.0),
@@ -110,14 +131,17 @@ class _Heroes_PageState extends State<Heroes_Page> {
 
 class Hero {
   final String name;
+  final String portrait;
 
   const Hero({
     required this.name,
+    required this.portrait,
   });
 
   factory Hero.fromJson(Map<String,dynamic>json){
     return Hero(
       name: json['name'],
+      portrait: json['portrait']
     );
 
   }
@@ -125,15 +149,13 @@ class Hero {
 
 class HeroDetails {
   final String description;
-  final String portrait;
   final int age;
   final String birthday;
   final String location;
   final String role;
 
   HeroDetails({
-    required this.description, 
-    required this.portrait, 
+    required this.description,  
     required this.role, 
     required this.location, 
     required this.age, 
@@ -141,8 +163,7 @@ class HeroDetails {
     });
     factory HeroDetails.fromJson(Map<String,dynamic>json){
       return HeroDetails(
-        description: json['description'], 
-        portrait: json['portrait'], 
+        description: json['description'],  
         role: json['role'], 
         location: json['location'], 
         age: json['age'], 
