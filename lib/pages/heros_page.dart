@@ -15,6 +15,16 @@ Future<List<Hero>> fetchHeroes() async{
   }
 }
 
+Future<HeroDetails> fetchHeroDetails(herokey) async{
+  final response = await http.get(Uri.parse('https://overfast-api.tekrop.fr/heroes/${herokey}'));
+
+  if(response.statusCode == 200) {
+    return HeroDetails.fromJson(jsonDecode(response.body));
+  } else {
+    throw Exception("failed to load hero details");
+  }
+}
+
 class Heroes_Page extends StatefulWidget{
   const Heroes_Page({Key? key}) : super(key:key);
   @override
@@ -22,6 +32,7 @@ class Heroes_Page extends StatefulWidget{
 }
 class _Heroes_PageState extends State<Heroes_Page> {
   late Future<List<Hero>> _heroesFuture;
+  Map<String, Future<HeroDetails>> _detailsCache = {}; //cache to avoid duplicate API calls
 
 
   @override
@@ -49,15 +60,43 @@ class _Heroes_PageState extends State<Heroes_Page> {
                 final hero = heroes[index];
                 return ExpansionTile(
                   title: Text(hero.name),
+                  onExpansionChanged: (isExpanded) {
+                    if (isExpanded && !_detailsCache.containsKey(hero.name)) {
+                      //fetch details only if not cached
+                      setState(() {
+                        _detailsCache[hero.name] = fetchHeroDetails(hero.name.toLowerCase());
+                      });
+                    }
+                  },
                   children: [
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Text("insert details for ${hero.name} here"),),
+                    FutureBuilder<HeroDetails>(
+                      future: _detailsCache[hero.name], 
+                      builder: (context, snapshot){
+                        if(snapshot.connectionState == ConnectionState.waiting){
+                          return const Padding(
+                            padding: EdgeInsets.all(8.0),
+                            child: Center(child: CircularProgressIndicator()),
+                            );
+                        }else if (snapshot.hasError){
+                          return Padding(padding: const EdgeInsets.all(8.0),
+                          child: Text("error loading hero details: ${snapshot.error}"),
+                          );
+                        }else if (snapshot.hasData){
+                          final details = snapshot.data!;
+                          return Padding(padding: const EdgeInsets.all(8.0),
+                          child: Text(details.description),
+                          );
+                        } else {
+                          return const Padding(padding: EdgeInsets.all(8.0),
+                          child: Text("no details available."),
+                          );
+                        }
+                      })
                   ],
                 );
               });
           }else{
-            return Text('an error has occured please try again later');
+            return const Center(child: Text('an error has occured please try again later'));
           }
         }
 
@@ -82,4 +121,31 @@ class Hero {
     );
 
   }
+}
+
+class HeroDetails {
+  final String description;
+  final String portrait;
+  final int age;
+  final String birthday;
+  final String location;
+  final String role;
+
+  HeroDetails({
+    required this.description, 
+    required this.portrait, 
+    required this.role, 
+    required this.location, 
+    required this.age, 
+    required this.birthday
+    });
+    factory HeroDetails.fromJson(Map<String,dynamic>json){
+      return HeroDetails(
+        description: json['description'], 
+        portrait: json['portrait'], 
+        role: json['role'], 
+        location: json['location'], 
+        age: json['age'], 
+        birthday: json['birthday']);
+    }
 }
