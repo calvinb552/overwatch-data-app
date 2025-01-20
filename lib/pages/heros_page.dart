@@ -61,6 +61,7 @@ class _Heroes_PageState extends State<Heroes_Page> {
               itemBuilder: (context, index) {
                 final hero = heroes[index];
                 return ExpansionTile(
+                  tilePadding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 30.0),
                   title: Row(
                     children: [
                       Image.network(
@@ -105,7 +106,8 @@ class _Heroes_PageState extends State<Heroes_Page> {
                         }else if (snapshot.hasData){
                           final details = snapshot.data!;
                           return Padding(padding: const EdgeInsets.all(8.0),
-                          child: Text("Details: ${details.description}\nage: ${details.age}\nbirthday: ${details.birthday}\nlocation: ${details.location}\nrole: ${details.role}"),
+                          child: Text("Details: ${details.description}\nage: ${details.age}\nbirthday: ${details.birthday}\nlocation: ${details.location}\nrole: ${details.role}\nhitpoints: ${details.hitpoints}\nabilities: ${details.abilities}", style: const TextStyle(fontSize: 16),
+                          ),
                           );
                         } else {
                           return const Padding(padding: EdgeInsets.all(8.0),
@@ -153,20 +155,41 @@ class HeroDetails {
   final String birthday;
   final String location;
   final String role;
+  final Map hitpoints;
+  final List<Map<String, dynamic>> abilities;
+  final Map story;
 
   HeroDetails({
     required this.description,  
     required this.role, 
     required this.location, 
     required this.age, 
-    required this.birthday
+    required this.birthday,
+    required this.hitpoints,
+    required this.abilities,
+    required this.story,
     });
     factory HeroDetails.fromJson(Map<String,dynamic>json){
+      //removing icon from each ability
+      List<Map<String, dynamic>> processedAbilities = (json['abilities'] as List<dynamic>).map((ability){
+        //create copy of ability dictonary without icon
+        Map<String, dynamic> abilityMap = Map<String, dynamic>.from(ability);
+        abilityMap.remove('icon');
+        abilityMap.remove('video');
+        return abilityMap;
+      }
+      ).toList();
+
       return HeroDetails(
         description: json['description'],  
         role: json['role'], 
         location: json['location'], 
         age: json['age'], 
-        birthday: json['birthday']);
+        birthday: json['birthday'],
+        hitpoints: json['hitpoints'],
+        abilities: processedAbilities,
+        story: json['story']
+        );
+        
     }
 }
