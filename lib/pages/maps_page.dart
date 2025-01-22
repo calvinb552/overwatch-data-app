@@ -1,4 +1,16 @@
 import 'package:flutter/material.dart';
+import 'dart:convert'; // For JSON decoding
+import 'package:http/http.dart' as http;
+
+Future<mapInfo> fetchMapInfo() async{
+  final response = await http.get(Uri.parse('https://overfast-api.tekrop.fr/maps'));
+
+  if(response.statusCode == 200) {
+    return mapInfo.fromJson(jsonDecode(response.body));
+  } else {
+    throw Exception("failed to load hero details");
+  }
+}
 
 class Maps_Page extends StatefulWidget{
   const Maps_Page({Key? key}) : super(key:key);
@@ -64,6 +76,30 @@ class _Maps_PageState extends State<Maps_Page> {
       ),
     )
     );
+  }
+}
+
+class mapInfo{
+  final String name;
+  final String screenshot;
+  final List gamemodes;
+  final String location;
+  final String country_code;
+  const mapInfo({
+    required this.name,
+    required this.screenshot,
+    required this.gamemodes,
+    required this.location,
+    required this.country_code,
+  });
+
+  factory mapInfo.fromJson(Map<String, dynamic>json){
+    return mapInfo(
+      name: json['name'], 
+      screenshot: json['screenshot'], 
+      gamemodes: json['gamemodes'], 
+      location: json['location'], 
+      country_code: json['country_code']);
   }
 }
 
