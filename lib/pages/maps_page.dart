@@ -2,13 +2,14 @@ import 'package:flutter/material.dart';
 import 'dart:convert'; // For JSON decoding
 import 'package:http/http.dart' as http;
 
-Future<mapInfo> fetchMapInfo() async{
+Future<List<mapInfo>> fetchMaps() async{
   final response = await http.get(Uri.parse('https://overfast-api.tekrop.fr/maps'));
 
   if(response.statusCode == 200) {
-    return mapInfo.fromJson(jsonDecode(response.body));
+    final List<dynamic> jsonData = jsonDecode(response.body);
+    return jsonData.map((map) => mapInfo.fromJson(map)).toList();
   } else {
-    throw Exception("failed to load hero details");
+    throw Exception("failed to load map details");
   }
 }
 
@@ -19,14 +20,12 @@ class Maps_Page extends StatefulWidget{
 }
 
 class _Maps_PageState extends State<Maps_Page> {
-  bool _showImage = true;
-  
+  late Future<List<mapInfo>> _mapsFuture;
 
-  void _toggleView() async {
-    await Future.delayed(const Duration(milliseconds: 200)); //wait for ripple affect to start
-    setState(() {
-      _showImage = !_showImage; //switch image on and off
-    });
+  @override
+  void initState() {
+    super.initState();
+    _mapsFuture = fetchMaps();
   }
   
   @override
@@ -37,45 +36,105 @@ class _Maps_PageState extends State<Maps_Page> {
         title: Text('Map info'),
         centerTitle: true,
         backgroundColor: Color.fromARGB(255, 51, 51, 190),),
-      body: Center(
-        child: Material(
-        color: Colors.blue,
-        elevation: 8,
-        borderRadius: BorderRadius.circular(28),
-        clipBehavior: Clip.antiAliasWithSaveLayer,
-        child:
-          InkWell(
+      body: FutureBuilder<List<mapInfo>>(
+        future: _mapsFuture,
+        builder: (context, snapshot){
+          if(snapshot.connectionState == ConnectionState.waiting){
+            return const Center(child: CircularProgressIndicator());
+          }else if (snapshot.hasError){
+            return Center(child: Text('Error: ${snapshot.error}'),);
+          }else if (!snapshot.hasData || snapshot.data!.isEmpty){
+            return const Center(child: Text('no maps availible'),);
+          }
+
+          final maps = snapshot.data!;
+          return GridView.builder(
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 4, // Number of items per row
+        crossAxisSpacing: 8.0, // Spacing between items horizontally
+        mainAxisSpacing: 8.0, // Spacing between items vertically
+        childAspectRatio: 1, // Aspect ratio of each item (1 for square items)
+          ),
+          itemCount: maps.length,
+          itemBuilder: (context, index) {
+            final map = maps[index];
+            return MapCard(map: map);
+          }
+          );
+        }
+    )
+    );
+  }
+}
+
+class MapCard extends StatefulWidget{
+  final mapInfo map;
+
+  const MapCard({required this.map, Key? key}) : super(key: key);
+
+  @override
+  State<MapCard> createState() => _MapCardState();
+}
+
+class _MapCardState extends State<MapCard> {
+  bool _showImage = true;
+
+  void _toggleView() {
+    setState((){
+      _showImage = !_showImage;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+      elevation: 8,
+      color: const Color.fromARGB(255, 122, 122, 229),
+      child:InkWell(
             splashColor: Colors.blueAccent,
             onTap: () {
               _toggleView();
             },
             child: Column(
               mainAxisSize: MainAxisSize.min,
-              children: [ 
-              SizedBox(
-                height: 400,
-                width: 400,
-                child: 
-              _showImage 
-              ?Ink.image(
-              image: const NetworkImage('https://overfast-api.tekrop.fr/static/maps/necropolis.jpg'),
-              height: 400,
-              width: 400,
-              fit: BoxFit.cover,
-              )
-              :const Padding(
-                padding: EdgeInsets.all(8.0),
-                child: Text('info goes here',
-                style: TextStyle(fontSize: 16),),)),
-              const SizedBox(height: 6),
-              const Text('Map Name',
-              style: TextStyle(fontSize: 32),)
-            ]
-          )
-          )
-      ),
-    )
-    );
+              children: [
+                SizedBox(
+                  height: 300,
+                  width: 300,
+                  
+                  child: _showImage
+                  ?Image.network(
+                    widget.map.screenshot,
+                    fit: BoxFit.cover,
+                    )
+                  : Padding(padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const SizedBox(height: 8),
+                      Text('Location: ${widget.map.location} (${widget.map.country_code})',
+                      style: const TextStyle(fontSize: 16)),
+                       const SizedBox(height: 8),
+                            Text(
+                              'Game Modes: ${widget.map.gamemodes.join(", ")}',
+                              style: const TextStyle(fontSize: 16),)
+                    ],
+                    ),
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  child: Center(
+                    child: Text(
+                      widget.map.name,
+                      style: const TextStyle(fontSize: 24),
+                    ),
+                  ),
+                )
+              ],
+            ),
+    ));
   }
 }
 
@@ -95,11 +154,11 @@ class mapInfo{
 
   factory mapInfo.fromJson(Map<String, dynamic>json){
     return mapInfo(
-      name: json['name'], 
-      screenshot: json['screenshot'], 
-      gamemodes: json['gamemodes'], 
-      location: json['location'], 
-      country_code: json['country_code']);
+      name: json['name'] ?? 'unkown name', 
+      screenshot: json['screenshot'] ?? 'no screenshot availible', 
+      gamemodes: json['gamemodes'] ?? 'no gamemodes acessable at this time', 
+      location: json['location'] ?? 'location unkown', 
+      country_code: json['country_code'] ?? 'no currently avalible country code');
   }
 }
 
