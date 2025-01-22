@@ -11,7 +11,9 @@ class _Gamemode_PageState extends State<Gamemode_Page> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Gamemode info')),
+      appBar: AppBar(
+        title: Text('Gamemode info'),
+        backgroundColor: Colors.green,),
       body: const Center(
         child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
