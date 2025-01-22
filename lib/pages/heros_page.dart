@@ -64,10 +64,10 @@ class _Heroes_PageState extends State<Heroes_Page> {
                   tilePadding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 30.0),
                   title: Row(
                     children: [
-                      Image.network(
-                        hero.portrait,
-                        width: 40,
-                        height: 40,
+                      Image(
+                        image: NetworkImage(hero.portrait),
+                        width: 120,
+                        height: 120,
                         fit: BoxFit.cover,
                         loadingBuilder: (context, child, loadingProgress) {
                           if (loadingProgress == null) return child; //image loaded
@@ -86,7 +86,7 @@ class _Heroes_PageState extends State<Heroes_Page> {
                     if (isExpanded && !_detailsCache.containsKey(hero.name)) {
                       //fetch details only if not cached
                       setState(() {
-                        _detailsCache[hero.name] = fetchHeroDetails(hero.name.toLowerCase());
+                        _detailsCache[hero.name] = fetchHeroDetails(hero.characterkey);
                       });
                     }
                   },
@@ -132,16 +132,19 @@ class _Heroes_PageState extends State<Heroes_Page> {
 //create model class
 
 class Hero {
+  final String characterkey;
   final String name;
   final String portrait;
 
   const Hero({
     required this.name,
     required this.portrait,
+    required this.characterkey,
   });
 
   factory Hero.fromJson(Map<String,dynamic>json){
     return Hero(
+      characterkey: json['key'],
       name: json['name'],
       portrait: json['portrait']
     );
