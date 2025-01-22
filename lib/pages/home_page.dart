@@ -35,7 +35,8 @@ int selectedIndex = 0;
           ),
           Padding(padding: EdgeInsets.all(8.0),
             child: ElevatedButton(onPressed: () {
-            
+            Navigator.push(context,
+            MaterialPageRoute(builder: (context) => const Player_Page()));
           },
             child: const Text('Players'))),
           Padding(padding: EdgeInsets.all(8.0),
@@ -45,7 +46,7 @@ int selectedIndex = 0;
             child: const Text('Maps'))),
           Padding(padding: EdgeInsets.all(8.0),
             child: ElevatedButton(onPressed: () {
-            
+            Navigator.push(context, MaterialPageRoute(builder: (context) => const Gamemode_Page()));
           },
             child: const Text('Gamemodes'))),
           ],

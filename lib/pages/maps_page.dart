@@ -10,7 +10,16 @@ class _Maps_PageState extends State<Maps_Page> {
   
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
-    throw UnimplementedError();
+    return Scaffold(
+      appBar: AppBar(title: Text('Map info')),
+      body: const Center(
+        child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text('implement info here')
+        ],
+      ),
+    )
+    );
   }
 }
