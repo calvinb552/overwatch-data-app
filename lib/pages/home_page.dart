@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:overwatch_stats/pages/heros_page.dart';
+import 'package:overwatch_stats/pages/maps_page.dart';
+import 'package:overwatch_stats/pages/player_page.dart';
+import 'package:overwatch_stats/pages/gamemode_page.dart';
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
@@ -19,28 +22,32 @@ int selectedIndex = 0;
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            ElevatedButton(onPressed: () {
+            Padding(
+            padding: const EdgeInsets.all(8.0), // Padding around the button
+            child: ElevatedButton(
+              onPressed: () {
               Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => Heroes_Page()));
-            },
-             
-            child: const Text('Heros')),
-          ElevatedButton(onPressed: () {
-
-            },
-             
-            child: const Text('Players')),
-          ElevatedButton(onPressed: () {
-
-            },
-             
-            child: const Text('Maps')),
-          ElevatedButton(onPressed: () {
-
-            },
-             
-            child: const Text('gamemodes')),
+              context,
+              MaterialPageRoute(builder: (context) => const Heroes_Page()));
+              },
+              child: const Text('Heroes'),
+            ),
+          ),
+          Padding(padding: EdgeInsets.all(8.0),
+            child: ElevatedButton(onPressed: () {
+            
+          },
+            child: const Text('Players'))),
+          Padding(padding: EdgeInsets.all(8.0),
+            child: ElevatedButton(onPressed: () {
+            Navigator.push(context, MaterialPageRoute(builder: (context) => const Maps_Page()));
+          },
+            child: const Text('Maps'))),
+          Padding(padding: EdgeInsets.all(8.0),
+            child: ElevatedButton(onPressed: () {
+            
+          },
+            child: const Text('Gamemodes'))),
           ],
         )
 
