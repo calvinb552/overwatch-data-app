@@ -17,7 +17,9 @@ int selectedIndex = 0;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('overwatch stats'),),
+      appBar: AppBar(
+        title: const Text('overwatch stats'),
+        centerTitle: true,),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,

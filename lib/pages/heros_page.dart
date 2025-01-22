@@ -46,7 +46,11 @@ class _Heroes_PageState extends State<Heroes_Page> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Heroes Page')),
+      backgroundColor: Color.fromARGB(255, 254, 204, 204),
+      appBar: AppBar(
+        title: const Text('Heroes Page'),
+        centerTitle: true,
+        backgroundColor: Colors.redAccent,),
       body: FutureBuilder<List<Hero>>(
         future: _heroesFuture,
         builder: (context, snapshot) {
