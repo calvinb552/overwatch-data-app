@@ -19,21 +19,83 @@ class Gamemode_Page extends StatefulWidget{
 }
 
 class _Gamemode_PageState extends State<Gamemode_Page> {
-  
+  late Future<List<gamemodes>> _gamemodesFuture;
+  Map<String, Future<gamemodes>> _gamemodeCache = {};
+
+
+  @override
+  void initState() {
+    super.initState();
+    _gamemodesFuture = fetchGamemodes();
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text('Gamemode info'),
         backgroundColor: Colors.green,),
-      body: const Center(
-        child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text('implement info here')
-        ],
-      ),
-    )
+      body: FutureBuilder<List<gamemodes>>(
+        future: _gamemodesFuture, 
+        builder: (context, snapshot){
+          if (snapshot.connectionState == ConnectionState.waiting){
+            return const Center(child: CircularProgressIndicator(),);
+          } else if (snapshot.hasError){
+            return Center(child: Text("error: ${snapshot.error}"),);
+          } else if (snapshot.hasData){
+            final gamemode = snapshot.data!;
+            return ListView.builder(
+              itemCount: gamemode.length,
+              itemBuilder: (context, index) {
+                final item = gamemode[index];
+                return Column(
+                  children: [
+                    GestureDetector(
+                      onTap: () {
+                        showDialog(
+                          context: context, 
+                          builder: (_) => AlertDialog(
+                            title: Text(item.name),
+                            content: Text(item.description),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.pop(context), 
+                                child: const Text('close'))
+                            ],
+                          ));
+                      },
+                      child: Column(
+                        children: [
+                          //icon
+                          Container(
+                            padding: EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: Colors.greenAccent,
+                            ),
+                            child: Image.network(
+                              item.icon
+                            ),
+                          ),
+                          if (index != gamemode.length - 1)
+                            Container(
+                              width: 2,
+                              height: 50,
+                              color: Colors.greenAccent,
+                            )
+                        ],
+                      ),
+                    )
+                  ],
+                );
+                
+              }
+            );
+          }else{
+            throw('error');
+          }
+        })
     );
   }
 }
